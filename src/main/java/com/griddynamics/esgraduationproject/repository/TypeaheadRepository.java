@@ -1,7 +1,7 @@
-package com.griddynamics.esgraduationproject.repository;
+package com.griddynamics.es.graduation.project.repository;
 
-import com.griddynamics.esgraduationproject.model.TypeaheadServiceRequest;
-import com.griddynamics.esgraduationproject.model.TypeaheadServiceResponse;
+import com.griddynamics.es.graduation.project.model.TypeaheadServiceRequest;
+import com.griddynamics.es.graduation.project.model.TypeaheadServiceResponse;
 
 public interface TypeaheadRepository {
     TypeaheadServiceResponse getAllTypeaheads(TypeaheadServiceRequest request);

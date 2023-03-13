@@ -1,4 +1,4 @@
-package com.griddynamics.esgraduationproject.common;
+package com.griddynamics.es.graduation.project.common;
 
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.specification.RequestSpecification;

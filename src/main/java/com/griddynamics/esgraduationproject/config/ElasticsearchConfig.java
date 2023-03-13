@@ -1,4 +1,4 @@
-package com.griddynamics.esgraduationproject.config;
+package com.griddynamics.es.graduation.project.config;
 
 import lombok.Data;
 import org.apache.http.HttpHost;

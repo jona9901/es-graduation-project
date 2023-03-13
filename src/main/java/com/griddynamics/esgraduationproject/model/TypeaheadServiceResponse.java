@@ -1,4 +1,4 @@
-package com.griddynamics.esgraduationproject.model;
+package com.griddynamics.es.graduation.project.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
