@@ -1,6 +1,6 @@
-package com.griddynamics.es.graduation.project.common;
+package com.griddynamics.esgraduationproject.common;
 
-import com.griddynamics.es.graduation.project.service.TypeaheadService;
+import com.griddynamics.esgraduationproject.service.TypeaheadService;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
