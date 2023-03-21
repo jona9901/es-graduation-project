@@ -1,3 +1,7 @@
+local:
+  server:
+    port: 8080
+
 com.griddynamics.es.graduation.project:
   esHost: http://localhost:9200
   user: elastic
@@ -23,8 +27,3 @@ com.griddynamics.es.graduation.project:
         one: 0.5
         two: 0.25
     prefixQueryBoost: 0.9
-
-local:
-  server:
-    port:
-      8080

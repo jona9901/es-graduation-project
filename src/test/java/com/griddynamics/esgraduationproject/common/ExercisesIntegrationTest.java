@@ -1,9 +1,12 @@
 package com.griddynamics.esgraduationproject.common;
 
+import com.griddynamics.esgraduationproject.rest.TypeaheadController;
 import com.griddynamics.esgraduationproject.service.TypeaheadService;
 //import org.junit.Before;
 //import org.junit.Ignore;
+import io.restassured.RestAssured;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -12,22 +15,28 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.hamcrest.Matchers.greaterThan;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 /*import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;*/
 
-@SpringBootTest
+@Slf4j
 @AutoConfigureMockMvc(addFilters = false)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ExercisesIntegrationTest extends BaseTest {
     private final APIClient client = new APIClient();
 
-    @Autowired
-    TypeaheadService typeaheadService;
+    private final MockMvc mvc;
+
+    private final TypeaheadService typeaheadService;
 
     @BeforeAll
     public void init() throws InterruptedException {
@@ -40,13 +49,13 @@ public class ExercisesIntegrationTest extends BaseTest {
     @Test
     public void testGetAllWorks() {
         client
-//            .logResponse() // Use this method to log the response to debug tests
-            .typeaheadRequest()
-            .body("{}")
-            .post()
-            .then()
-            .statusCode(200)
-            .body("totalHits", greaterThan(0));
+//                .logResponse() // Use this method to log the response to debug tests
+                .typeaheadRequest()
+                .body("{}")
+                .post()
+                .then()
+                .statusCode(200)
+                .body("totalHits", greaterThan(0));
     }
 
     /*
