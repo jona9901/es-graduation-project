@@ -115,7 +115,7 @@ public class TypeaheadRepositoryImpl implements TypeaheadRepository {
 
         // Add sorting and aggregation if necessary
         if (!request.isGetAllRequest()) {
-            if (!request.getConsiderItemCountInSorting()) {
+            if (request.getConsiderItemCountInSorting() == null || !request.getConsiderItemCountInSorting()) {
                 // Sorting
                 ssb.sort(new ScoreSortBuilder().order(SortOrder.DESC)); // sort by _score DESC
                 ssb.sort(new FieldSortBuilder(RANK_FIELD).order(SortOrder.DESC)); // sort by rank DESC
