@@ -5,6 +5,7 @@ import io.restassured.RestAssured;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,9 +61,7 @@ public class ExercisesIntegrationTest extends BaseTest {
             .body("typeaheads", hasSize(36));
     }
 
-    /*
     // TASK 3: Fix bug in search by text
-    @Ignore
     @Test
     public void testSearchByTextWorks() {
         client
@@ -92,7 +91,7 @@ public class ExercisesIntegrationTest extends BaseTest {
     }
 
     // TASK 4: Change facet bucket definition so that the small bucket contain count > 0
-    @Ignore
+    @Disabled
     @Test
     public void testSearchByTextReturnsMoreThan0InSmallFacetBucket() {
         client
@@ -111,7 +110,7 @@ public class ExercisesIntegrationTest extends BaseTest {
     // TASK 5: Add a new parameter "considerItemCountInSorting" to the request that change sorting (when it's true)
     // from: _score DESC, rank DESC, _id DESC
     // to: _score DESC, itemCount DESC, _id DESC
-    @Ignore
+    @Disabled
     @Test
     public void testSortingByItemCountWorks() {
 
@@ -184,6 +183,5 @@ public class ExercisesIntegrationTest extends BaseTest {
             .body("typeaheads[2].rank", is(48))
             .body("typeaheads[2].itemCount", is(201))
         ;
-    }*/
-
+    }
 }
