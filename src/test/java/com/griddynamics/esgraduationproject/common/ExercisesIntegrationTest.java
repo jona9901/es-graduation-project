@@ -1,32 +1,42 @@
 package com.griddynamics.esgraduationproject.common;
 
 import com.griddynamics.esgraduationproject.service.TypeaheadService;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+//import org.junit.Before;
+//import org.junit.Ignore;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+/*import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.notNullValue;*/
 
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ExercisesIntegrationTest extends BaseTest {
-
-    private APIClient client = new APIClient();
+    private final APIClient client = new APIClient();
 
     @Autowired
     TypeaheadService typeaheadService;
 
-    @Before
+    @BeforeAll
     public void init() throws InterruptedException {
         typeaheadService.recreateIndex();
         Thread.sleep(1100); // TASK 6: Why if we change 1100 to 500, then some tests fail? How to fix it, so that all tests pass with 500?
     }
 
     // TASK 1: Fix 2 bugs in config and recreation/filling of the index.
-    @Ignore
+    //@Ignore
     @Test
     public void testGetAllWorks() {
         client
@@ -39,6 +49,7 @@ public class ExercisesIntegrationTest extends BaseTest {
             .body("totalHits", greaterThan(0));
     }
 
+    /*
     // TASK 2: Fix bulk data file
     @Ignore
     @Test
@@ -177,6 +188,6 @@ public class ExercisesIntegrationTest extends BaseTest {
             .body("typeaheads[2].rank", is(48))
             .body("typeaheads[2].itemCount", is(201))
         ;
-    }
+    }*/
 
 }

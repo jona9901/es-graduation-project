@@ -26,6 +26,3 @@ nbdist/
 *.log
 art.search.service.logPath*
 src/main/resources/bootstrap.properties
-
-elasticsearch-7.16.3/
-kibana-7.16.3-darwin-x86_64/
