@@ -91,11 +91,10 @@ public class ExercisesIntegrationTest extends BaseTest {
     }
 
     // TASK 4: Change facet bucket definition so that the small bucket contain count > 0
-    @Disabled
     @Test
     public void testSearchByTextReturnsMoreThan0InSmallFacetBucket() {
         client
-//            .logResponse() // Use this method to log the response to debug tests
+            .logResponse() // Use this method to log the response to debug tests
             .typeaheadRequest()
             .body("{\"size\": 3, \"textQuery\": \"sho\"}")
             .post()
