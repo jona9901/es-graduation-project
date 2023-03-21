@@ -94,7 +94,7 @@ public class ExercisesIntegrationTest extends BaseTest {
     @Test
     public void testSearchByTextReturnsMoreThan0InSmallFacetBucket() {
         client
-            .logResponse() // Use this method to log the response to debug tests
+//            .logResponse() // Use this method to log the response to debug tests
             .typeaheadRequest()
             .body("{\"size\": 3, \"textQuery\": \"sho\"}")
             .post()
@@ -109,7 +109,6 @@ public class ExercisesIntegrationTest extends BaseTest {
     // TASK 5: Add a new parameter "considerItemCountInSorting" to the request that change sorting (when it's true)
     // from: _score DESC, rank DESC, _id DESC
     // to: _score DESC, itemCount DESC, _id DESC
-    @Disabled
     @Test
     public void testSortingByItemCountWorks() {
 
