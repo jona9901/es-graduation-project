@@ -34,7 +34,6 @@ public class ExercisesIntegrationTest extends BaseTest {
     }
 
     // TASK 1: Fix 2 bugs in config and recreation/filling of the index.
-    //@Ignore
     @Test
     public void testGetAllWorks() {
         client
@@ -47,9 +46,7 @@ public class ExercisesIntegrationTest extends BaseTest {
                 .body("totalHits", greaterThan(0));
     }
 
-    /*
     // TASK 2: Fix bulk data file
-    @Ignore
     @Test
     public void testGetAllReturns36documents() {
         client
@@ -63,6 +60,7 @@ public class ExercisesIntegrationTest extends BaseTest {
             .body("typeaheads", hasSize(36));
     }
 
+    /*
     // TASK 3: Fix bug in search by text
     @Ignore
     @Test
