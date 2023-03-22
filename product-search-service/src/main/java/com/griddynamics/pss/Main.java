@@ -1,4 +1,4 @@
-package org.springframework;
+package com.griddynamics.pss;
 
 public class Main {
     public static void main(String[] args) {
