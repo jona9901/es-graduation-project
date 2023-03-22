@@ -8,6 +8,8 @@ import com.griddynamics.esgraduationproject.model.TypeaheadServiceRequest;
 import com.griddynamics.esgraduationproject.model.TypeaheadServiceResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest.AliasActions;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -20,6 +22,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
@@ -37,6 +40,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -45,13 +49,13 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -86,6 +90,8 @@ public class TypeaheadRepositoryImpl implements TypeaheadRepository {
     float fuzzyTwoBoost;
     @Value("${com.griddynamics.es.graduation.project.request.prefixQueryBoost:0.9}")
     float prefixQueryBoost;
+    @Value("${com.griddynamics.es.graduation.project.format.date}")
+    private String dateFormat;
 
     // Mappings, settings and bulk data files
     @Value("${com.griddynamics.es.graduation.project.files.mappings:classpath:elastic/typeaheads/mappings.json}")
@@ -257,13 +263,49 @@ public class TypeaheadRepositoryImpl implements TypeaheadRepository {
 
     @Override
     public void recreateIndex() {
-        if (indexExists(indexName)) {
-            deleteIndex(indexName);
+        LocalDateTime date = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
+        String formattedDate = date.format(formatter);
+
+        String indexNameDate = String.format("%s_%s", indexName, formattedDate);
+
+        if (indexExists(indexNameDate)) {
+            deleteIndex(indexNameDate);
         }
 
         String settings = getStrFromResource(typeaheadsSettingsFile);
         String mappings = getStrFromResource(typeaheadsMappingsFile);
-        createIndex(indexName, settings, mappings);
+        createIndex(indexNameDate, settings, mappings);
+
+        GetIndexRequest indexRequest = new GetIndexRequest("typeaheads_*");
+
+        // Alias
+        IndicesAliasesRequest request = new IndicesAliasesRequest();
+
+        List.of(indexRequest.indices()).stream()
+                .forEach(index -> {
+                    AliasActions removeActions = new AliasActions(AliasActions.Type.REMOVE)
+                            .index(index)
+                            .alias(indexName);
+                    request.addAliasAction(removeActions);
+                });
+
+        AliasActions aliasAction =
+                new AliasActions(AliasActions.Type.ADD)
+                        .index(indexNameDate)
+                        .alias(indexName);
+        request.addAliasAction(aliasAction);
+        try {
+            esClient.indices().updateAliases(request, RequestOptions.DEFAULT);
+
+            GetIndexResponse indexResponse = esClient.indices().get(indexRequest, RequestOptions.DEFAULT);
+            if (indexResponse.getIndices().length > 5) {
+                deleteIndex(indexResponse.getIndices()[0]);
+            }
+
+        } catch (IOException ioException) {
+            log.error(ioException.getMessage());
+        }
 
         processBulkInsertData(typeaheadsBulkInsertDataFile);
     }
