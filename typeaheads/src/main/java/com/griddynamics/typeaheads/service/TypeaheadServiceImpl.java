@@ -1,8 +1,8 @@
-package com.griddynamics.esgraduationproject.service;
+package com.griddynamics.typeaheads.service;
 
-import com.griddynamics.esgraduationproject.model.TypeaheadServiceRequest;
-import com.griddynamics.esgraduationproject.model.TypeaheadServiceResponse;
-import com.griddynamics.esgraduationproject.repository.TypeaheadRepository;
+import com.griddynamics.typeaheads.model.TypeaheadServiceRequest;
+import com.griddynamics.typeaheads.model.TypeaheadServiceResponse;
+import com.griddynamics.typeaheads.repository.TypeaheadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

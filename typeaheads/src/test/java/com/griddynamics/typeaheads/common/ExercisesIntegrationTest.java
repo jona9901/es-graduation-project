@@ -1,6 +1,6 @@
-package com.griddynamics.esgraduationproject.common;
+package com.griddynamics.typeaheads.common;
 
-import com.griddynamics.esgraduationproject.service.TypeaheadService;
+import com.griddynamics.typeaheads.service.TypeaheadService;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

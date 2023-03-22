@@ -1,9 +1,8 @@
-package com.griddynamics.esgraduationproject.model;
+package com.griddynamics.typeaheads.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

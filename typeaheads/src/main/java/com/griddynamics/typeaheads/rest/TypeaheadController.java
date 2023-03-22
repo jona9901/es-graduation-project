@@ -1,8 +1,8 @@
-package com.griddynamics.esgraduationproject.rest;
+package com.griddynamics.typeaheads.rest;
 
-import com.griddynamics.esgraduationproject.model.TypeaheadServiceRequest;
-import com.griddynamics.esgraduationproject.model.TypeaheadServiceResponse;
-import com.griddynamics.esgraduationproject.service.TypeaheadService;
+import com.griddynamics.typeaheads.model.TypeaheadServiceRequest;
+import com.griddynamics.typeaheads.model.TypeaheadServiceResponse;
+import com.griddynamics.typeaheads.service.TypeaheadService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

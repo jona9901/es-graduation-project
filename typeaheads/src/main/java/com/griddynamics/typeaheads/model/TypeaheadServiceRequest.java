@@ -1,4 +1,4 @@
-package com.griddynamics.esgraduationproject.model;
+package com.griddynamics.typeaheads.model;
 
 import lombok.Data;
 

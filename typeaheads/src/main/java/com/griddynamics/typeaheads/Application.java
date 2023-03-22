@@ -1,6 +1,6 @@
-package com.griddynamics.esgraduationproject;
+package com.griddynamics.typeaheads;
 
-import com.griddynamics.esgraduationproject.service.TypeaheadService;
+import com.griddynamics.typeaheads.service.TypeaheadService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
