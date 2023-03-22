@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "brand": {
+      "type": "text",
+      "analyzer": "text_default",
+      "index_options": "docs",
+      "norms": false
+    },
+    "name": {
+      "type": "keyword",
+      "analyzer": "text_default",
+      "index_options": "docs",
+      "norms": false
+    },
+    "price": {
+      "type": "float",
+      "doc_values": false
+    },
+    "color": {
+
+    }
+  }
+}
