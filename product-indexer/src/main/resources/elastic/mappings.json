@@ -7,13 +7,13 @@
           "type": "text",
           "analyzer": "text_default",
           "index_options": "docs",
-          "norms": false
+          "norms": true
         },
         "shingles": {
           "type": "text",
           "analyzer": "text_default",
           "index_options": "docs",
-          "norms": false
+          "norms": true
         }
       }
     },
@@ -24,13 +24,13 @@
           "type": "text",
           "analyzer": "text_default",
           "index_options": "docs",
-          "norms": false
+          "norms": true
         },
         "shingles": {
           "type": "text",
           "analyzer": "text_default",
           "index_options": "docs",
-          "norms": false
+          "norms": true
         }
       }
     },
@@ -39,6 +39,7 @@
       "doc_values": true
     },
     "skus": {
+      "type": "nested",
       "properties": {
         "color": {
           "type": "text",

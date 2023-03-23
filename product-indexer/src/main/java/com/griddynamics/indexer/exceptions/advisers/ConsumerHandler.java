@@ -1,4 +1,4 @@
-package exceptions.advisers;
+package com.griddynamics.indexer.exceptions.advisers;
 
 import java.util.function.Consumer;
 

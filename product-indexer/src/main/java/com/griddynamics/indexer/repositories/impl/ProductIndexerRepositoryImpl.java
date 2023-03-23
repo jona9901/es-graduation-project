@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
 import com.griddynamics.indexer.models.Product;
+import com.griddynamics.indexer.models.mappers.ProductToXcontent;
 import com.griddynamics.indexer.repositories.ProductIndexerRepository;
-import exceptions.advisers.ConsumerHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
@@ -24,28 +24,28 @@ import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static exceptions.advisers.ConsumerHandler.consumerHandlerBuilder;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static com.griddynamics.indexer.exceptions.advisers.ConsumerHandler.consumerHandlerBuilder;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
     private final RestHighLevelClient client;
+    private final ProductToXcontent productToXcontent;
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final int MAXIMUM_NUMBER_OF_INDICES = 3;
     @Value("${com.griddynamics.product.indexer.es.index}")
     private String indexName;
     @Value("${com.griddynamics.product.indexer.date.format}")
@@ -96,7 +96,7 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
             client.indices().updateAliases(request, RequestOptions.DEFAULT);
 
             GetIndexResponse indexResponse = client.indices().get(indexRequest, RequestOptions.DEFAULT);
-            if (indexResponse.getIndices().length > 5) {
+            if (indexResponse.getIndices().length > MAXIMUM_NUMBER_OF_INDICES) {
                 deleteIndex(indexResponse.getIndices()[0]);
             }
 
@@ -160,61 +160,46 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
         }
     }
 
+    // TODO: refractor stream
     private void processBulkInsertData() {
         int requestCnt = 0;
         try {
-            //BulkRequest bulkRequest = new BulkRequest();
+            BulkRequest bulkRequest = new BulkRequest();
             List<Product> products = objectMapper.readValue(productIndexerDataFile.getFile(), new TypeReference<List<Product>>() {});
-            products.stream()
-                    .forEach(consumerHandlerBuilder(product -> {
+            List<XContentBuilder> builder = products.stream()
+                    .peek(consumerHandlerBuilder(product -> {
                         AnalyzeRequest analyzeRequest = new AnalyzeRequest(indexName)
                                 .analyzer("shingle_analyzer")
                                 .field("name")
                                 .text(product.getName());
-                        AnalyzeResponse response = client.indices().analyze(analyzeRequest, RequestOptions.DEFAULT);
-                        List<String> shingles = response.getTokens()
+                        AnalyzeResponse response = client
+                                .indices()
+                                .analyze(analyzeRequest, RequestOptions.DEFAULT);
+                        List<String> shingles = response
+                                .getTokens()
                                 .stream()
                                 .map(AnalyzeResponse.AnalyzeToken::getTerm)
                                 .collect(Collectors.toList());
                         product.setNameShingles(shingles);
-                    }));
-                    /*.map(product -> {
-                        return new AnalyzeRequest(indexName)
-                                .analyzer("shingle_analyzer")
-                                .field("name")
-                                .text(product.getName());
+                    }))
+                    .map(productToXcontent::productToXcontentBuilder)
+                    .collect(Collectors.toList());
+
+            List<IndexRequest> requests = builder.stream()
+                    .map(build -> {
+                        return new IndexRequest(indexName)
+                                .source(build);
                     })
-                    .forEach(consumerHandlerBuilder(analyzeRequest -> {
-                        AnalyzeResponse response = client.indices().analyze(analyzeRequest, RequestOptions.DEFAULT);
-                        List<String> terms = response.getTokens()
-                                .stream()
-                                .map(AnalyzeResponse.AnalyzeToken::getTerm)
-                                .collect(Collectors.toList());
-                    }));*/
-        } catch (IOException ioException) {
-            log.error(ioException.getMessage());
-        }
-    }
+                    .collect(Collectors.toList());
 
-    /*private void processBulkInsertData(Resource bulkInsertDataFile) {
-        int requestCnt = 0;
-        try {
-            BulkRequest bulkRequest = new BulkRequest();
-            BufferedReader br = new BufferedReader(new InputStreamReader(bulkInsertDataFile.getInputStream()));
-
-            while (br.ready()) {
-                String line1 = br.readLine(); // action_and_metadata
-                if (isNotEmpty(line1) && br.ready()) {
-                    requestCnt++;
-                    String line2 = br.readLine();
-                    IndexRequest indexRequest = createIndexRequestFromBulkData(line1, line2);
-                    if (indexRequest != null) {
-                        bulkRequest.add(indexRequest);
-                    }
-                }
+            for (int i = 0; i < products.size(); i++) {
+                requests.get(i).id(Integer.toString(products.get(i).getId()));
+                bulkRequest.add(requests.get(i));
+                requestCnt++;
             }
 
-            BulkResponse bulkResponse = esClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+            BulkResponse bulkResponse = client.bulk(bulkRequest, RequestOptions.DEFAULT);
+
             if (bulkResponse.getItems().length != requestCnt) {
                 log.warn("Only {} out of {} requests have been processed in a bulk request.", bulkResponse.getItems().length, requestCnt);
             } else {
@@ -224,9 +209,8 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
             if (bulkResponse.hasFailures()) {
                 log.warn("Bulk data processing has failures:\n{}", bulkResponse.buildFailureMessage());
             }
-        } catch (IOException ex) {
-            log.error("An exception occurred during bulk data processing", ex);
-            throw new RuntimeException(ex);
+        } catch (IOException ioException) {
+            log.error(ioException.getMessage());
         }
-    }*/
+    }
 }
