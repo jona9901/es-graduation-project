@@ -23,7 +23,7 @@ public class ElasticsearchConfig {
     private String user;
     private String pass;
 
-    @Bean(name = "esClient")
+    @Bean(name = "client")
     public RestHighLevelClient getEsClient() {
         RestClientBuilder restClientBuilder = RestClient.builder(HttpHost.create(esHost));
 

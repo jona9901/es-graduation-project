@@ -34,7 +34,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
-
         <!--ELASTIC -->
         <dependency>
             <groupId>org.elasticsearch.client</groupId>

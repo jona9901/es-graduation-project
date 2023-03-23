@@ -7,17 +7,26 @@
       "norms": false
     },
     "name": {
-      "type": "keyword",
+      "type": "text",
       "analyzer": "text_default",
       "index_options": "docs",
       "norms": false
     },
     "price": {
       "type": "float",
-      "doc_values": false
+      "doc_values": true
     },
     "color": {
-
+      "type": "text",
+      "analyzer": "text_default",
+      "index_options": "docs",
+      "norms": false
+    },
+    "size": {
+      "type": "text",
+      "analyzer": "text_default",
+      "index_options": "docs",
+      "norms": false
     }
   }
 }
