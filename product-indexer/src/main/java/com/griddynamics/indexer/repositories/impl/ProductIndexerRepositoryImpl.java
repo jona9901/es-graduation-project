@@ -5,10 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
 import com.griddynamics.indexer.models.Product;
 import com.griddynamics.indexer.repositories.ProductIndexerRepository;
+import exceptions.advisers.ConsumerHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest.AliasActions;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -31,7 +35,9 @@ import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static exceptions.advisers.ConsumerHandler.consumerHandlerBuilder;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @Slf4j
@@ -39,9 +45,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 @RequiredArgsConstructor
 public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
     private final RestHighLevelClient client;
-
     private static final ObjectMapper objectMapper = new ObjectMapper();
-
     @Value("${com.griddynamics.product.indexer.es.index}")
     private String indexName;
     @Value("${com.griddynamics.product.indexer.date.format}")
@@ -55,8 +59,7 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
 
     @Override
     public void recreateIndex() {
-        processBulkInsertData();
-        /*LocalDateTime date = LocalDateTime.now();
+        LocalDateTime date = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
         String formattedDate = date.format(formatter);
 
@@ -76,12 +79,12 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
         IndicesAliasesRequest request = new IndicesAliasesRequest();
 
         List.of(indexRequest.indices()).stream()
-                .forEach(index -> {
-                    IndicesAliasesRequest.AliasActions removeActions = new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
+                .map(index -> {
+                    return new AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
                             .index(index)
                             .alias(indexName);
-                    request.addAliasAction(removeActions);
-                });
+                })
+                .forEach(request::addAliasAction);
 
         IndicesAliasesRequest.AliasActions aliasAction =
                 new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
@@ -99,7 +102,8 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
 
         } catch (IOException ioException) {
             log.error(ioException.getMessage());
-        }*/
+        }
+        processBulkInsertData();
     }
 
     private void createIndex(String indexName, String settings, String mappings) {
@@ -159,12 +163,34 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
     private void processBulkInsertData() {
         int requestCnt = 0;
         try {
-            BulkRequest bulkRequest = new BulkRequest();
+            //BulkRequest bulkRequest = new BulkRequest();
             List<Product> products = objectMapper.readValue(productIndexerDataFile.getFile(), new TypeReference<List<Product>>() {});
-            /*products.stream()
-                    .peek(product -> {
-
-                    });*/
+            products.stream()
+                    .forEach(consumerHandlerBuilder(product -> {
+                        AnalyzeRequest analyzeRequest = new AnalyzeRequest(indexName)
+                                .analyzer("shingle_analyzer")
+                                .field("name")
+                                .text(product.getName());
+                        AnalyzeResponse response = client.indices().analyze(analyzeRequest, RequestOptions.DEFAULT);
+                        List<String> shingles = response.getTokens()
+                                .stream()
+                                .map(AnalyzeResponse.AnalyzeToken::getTerm)
+                                .collect(Collectors.toList());
+                        product.setNameShingles(shingles);
+                    }));
+                    /*.map(product -> {
+                        return new AnalyzeRequest(indexName)
+                                .analyzer("shingle_analyzer")
+                                .field("name")
+                                .text(product.getName());
+                    })
+                    .forEach(consumerHandlerBuilder(analyzeRequest -> {
+                        AnalyzeResponse response = client.indices().analyze(analyzeRequest, RequestOptions.DEFAULT);
+                        List<String> terms = response.getTokens()
+                                .stream()
+                                .map(AnalyzeResponse.AnalyzeToken::getTerm)
+                                .collect(Collectors.toList());
+                    }));*/
         } catch (IOException ioException) {
             log.error(ioException.getMessage());
         }

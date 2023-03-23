@@ -1,11 +1,14 @@
 {
   "properties": {
     "brand": {
-      "type": "text",
-      "analyzer": "text_default",
-      "index_options": "docs",
-      "norms": false,
+      "type": "nested",
       "properties": {
+        "title": {
+          "type": "text",
+          "analyzer": "text_default",
+          "index_options": "docs",
+          "norms": false
+        },
         "shingles": {
           "type": "text",
           "analyzer": "text_default",
@@ -15,11 +18,14 @@
       }
     },
     "name": {
-      "type": "text",
-      "analyzer": "text_default",
-      "index_options": "docs",
-      "norms": false,
+      "type": "nested",
       "properties": {
+        "title": {
+          "type": "text",
+          "analyzer": "text_default",
+          "index_options": "docs",
+          "norms": false
+        },
         "shingles": {
           "type": "text",
           "analyzer": "text_default",
