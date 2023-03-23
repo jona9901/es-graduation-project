@@ -18,13 +18,13 @@
     },
     "color": {
       "type": "text",
-      "analyzer": "text_default",
+      "analyzer": "standard",
       "index_options": "docs",
       "norms": false
     },
     "size": {
       "type": "text",
-      "analyzer": "text_default",
+      "analyzer": "standard",
       "index_options": "docs",
       "norms": false
     }

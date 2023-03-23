@@ -17,10 +17,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 public class ProductIndexerServiceTest {
     @Autowired
     ProductIndexerService productIndexerService;
-    @Test
-    public void demoTest() {
-        productIndexerService.tt();
-    }
+
 
     @SpringBootApplication
     static class TestConfiguration {
