@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
@@ -18,6 +19,10 @@ public class ProductIndexerServiceTest {
     @Autowired
     ProductIndexerService productIndexerService;
 
+    @Test
+    public void demoTest() {
+        productIndexerService.tt();
+    }
 
     @SpringBootApplication
     static class TestConfiguration {

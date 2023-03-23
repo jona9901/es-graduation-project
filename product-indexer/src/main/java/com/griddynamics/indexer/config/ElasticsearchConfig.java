@@ -17,7 +17,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Data
 @Configuration
-@ConfigurationProperties("com.griddynamics.product.indexer")
+@ConfigurationProperties("com.griddynamics.product.indexer.es")
 public class ElasticsearchConfig {
     private String esHost;
     private String user;

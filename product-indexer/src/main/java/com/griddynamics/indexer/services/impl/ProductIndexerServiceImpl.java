@@ -16,6 +16,6 @@ public class ProductIndexerServiceImpl implements ProductIndexerService {
 
     @Override
     public void tt() {
-        repository.tt();
+        repository.recreateIndex();
     }
 }
