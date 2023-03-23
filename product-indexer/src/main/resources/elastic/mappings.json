@@ -4,29 +4,49 @@
       "type": "text",
       "analyzer": "text_default",
       "index_options": "docs",
-      "norms": false
+      "norms": false,
+      "properties": {
+        "shingles": {
+          "type": "text",
+          "analyzer": "shingle_analyzer",
+          "index_options": "docs",
+          "norms": false
+        }
+      }
     },
     "name": {
       "type": "text",
       "analyzer": "text_default",
       "index_options": "docs",
-      "norms": false
+      "norms": false,
+      "properties": {
+        "shingles": {
+          "type": "text",
+          "analyzer": "shingle_analyzer",
+          "index_options": "docs",
+          "norms": false
+        }
+      }
     },
     "price": {
       "type": "float",
       "doc_values": true
     },
-    "color": {
-      "type": "text",
-      "analyzer": "standard",
-      "index_options": "docs",
-      "norms": false
-    },
-    "size": {
-      "type": "text",
-      "analyzer": "standard",
-      "index_options": "docs",
-      "norms": false
+    "skus": {
+      "properties": {
+        "color": {
+          "type": "text",
+          "analyzer": "standard",
+          "index_options": "docs",
+          "norms": false
+        },
+        "size": {
+          "type": "text",
+          "analyzer": "standard",
+          "index_options": "docs",
+          "norms": false
+        }
+      }
     }
   }
 }
