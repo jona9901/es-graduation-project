@@ -8,7 +8,7 @@
       "properties": {
         "shingles": {
           "type": "text",
-          "analyzer": "shingle_analyzer",
+          "analyzer": "text_default",
           "index_options": "docs",
           "norms": false
         }
@@ -22,7 +22,7 @@
       "properties": {
         "shingles": {
           "type": "text",
-          "analyzer": "shingle_analyzer",
+          "analyzer": "text_default",
           "index_options": "docs",
           "norms": false
         }
