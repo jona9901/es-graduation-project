@@ -1,7 +1,7 @@
 server:
   port: 8080
 
-com.griddynamics.product.indexer:
+com.griddynamics:
   es:
     esHost: http://localhost:9200
     user: elastic

@@ -6,6 +6,6 @@ import org.springframework.test.context.TestPropertySource;
 
 @Configuration
 @ComponentScan(basePackages = {"com.griddynamics"})
-@TestPropertySource(locations = { "classpath:product-indexer-test.yml" })
+@TestPropertySource(locations = { "classpath:application.yml" })
 public class TestConfig {
 }

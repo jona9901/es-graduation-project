@@ -8,6 +8,7 @@ import java.util.List;
 public class Product {
     private int id;
     private String brand;
+    // TODO: shingles as derivative field instead of modifying the document
     private List<String> brandShingles;
     private String name;
     private List<String> nameShingles;

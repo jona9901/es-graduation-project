@@ -1,12 +1,17 @@
 server:
   port: 8080
 
+local:
+  server:
+    port: 8080
+
 com.griddynamics:
   es:
     esHost: http://localhost:9200
     user: elastic
     pass: Qo4dba5o1aH7qE7mfUoI
     index: product_indexer
+
   product:
     indexer:
       files:

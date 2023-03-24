@@ -166,35 +166,15 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
         try {
             BulkRequest bulkRequest = new BulkRequest();
             List<Product> products = objectMapper.readValue(productIndexerDataFile.getFile(), new TypeReference<List<Product>>() {});
-            List<XContentBuilder> builder = products.stream()
-                    .peek(consumerHandlerBuilder(product -> {
-                        AnalyzeRequest analyzeRequest = new AnalyzeRequest(indexName)
-                                .analyzer("shingle_analyzer")
-                                .field("name")
-                                .text(product.getName());
-                        AnalyzeResponse response = client
-                                .indices()
-                                .analyze(analyzeRequest, RequestOptions.DEFAULT);
-                        List<String> shingles = response
-                                .getTokens()
-                                .stream()
-                                .map(AnalyzeResponse.AnalyzeToken::getTerm)
-                                .collect(Collectors.toList());
-                        product.setNameShingles(shingles);
-                    }))
-                    .map(productToXcontent::productToXcontentBuilder)
-                    .collect(Collectors.toList());
 
-            List<IndexRequest> requests = builder.stream()
-                    .map(build -> {
-                        return new IndexRequest(indexName)
-                                .source(build);
-                    })
-                    .collect(Collectors.toList());
+            List<IndexRequest> nameRequests = getShingles(products, "name");
+            List<IndexRequest> brandRequests = getShingles(products, "brand");
 
             for (int i = 0; i < products.size(); i++) {
-                requests.get(i).id(Integer.toString(products.get(i).getId()));
-                bulkRequest.add(requests.get(i));
+                nameRequests.get(i).id(Integer.toString(products.get(i).getId()));
+                brandRequests.get(i).id(Integer.toString(products.get(i).getId()));
+                bulkRequest.add(nameRequests.get(i));
+                bulkRequest.add(brandRequests.get(i));
                 requestCnt++;
             }
 
@@ -212,5 +192,33 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
         } catch (IOException ioException) {
             log.error(ioException.getMessage());
         }
+    }
+
+    public List<IndexRequest> getShingles(List<Product> products, String field) {
+        List<XContentBuilder> builder = products.stream()
+                .peek(consumerHandlerBuilder(product -> {
+                    AnalyzeRequest analyzeRequest = new AnalyzeRequest(indexName)
+                            .analyzer("shingle_analyzer")
+                            .field("name")
+                            .text(product.getName());
+                    AnalyzeResponse response = client
+                            .indices()
+                            .analyze(analyzeRequest, RequestOptions.DEFAULT);
+                    List<String> shingles = response
+                            .getTokens()
+                            .stream()
+                            .map(AnalyzeResponse.AnalyzeToken::getTerm)
+                            .collect(Collectors.toList());
+                    product.setNameShingles(shingles);
+                }))
+                .map(productToXcontent::productToXcontentBuilder)
+                .collect(Collectors.toList());
+
+        return builder.stream()
+                .map(build -> {
+                    return new IndexRequest(indexName)
+                            .source(build);
+                })
+                .collect(Collectors.toList());
     }
 }

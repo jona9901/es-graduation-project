@@ -22,7 +22,7 @@ public class ProductToXcontentImpl implements ProductToXcontent {
                     .startObject()
                     .startObject("brand")
                     .field("title", product.getBrand())
-                    .field("shingles", "brand shingles")
+                    .field("shingles", product.getBrandShingles())
                     .endObject()
                     .startObject("name")
                     .field("title", product.getName())
