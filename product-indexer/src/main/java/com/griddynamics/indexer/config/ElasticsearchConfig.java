@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Data
 @Slf4j
 @Configuration
-@ConfigurationProperties("com.griddynamics.product.indexer.es")
+@ConfigurationProperties("com.griddynamics.es")
 public class ElasticsearchConfig {
     private String esHost;
     private String user;

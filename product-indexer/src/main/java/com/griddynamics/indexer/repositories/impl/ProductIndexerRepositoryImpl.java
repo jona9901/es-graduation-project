@@ -46,7 +46,7 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
     private final ProductToXcontent productToXcontent;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final int MAXIMUM_NUMBER_OF_INDICES = 3;
-    @Value("${com.griddynamics.product.indexer.es.index}")
+    @Value("${com.griddynamics.es.index}")
     private String indexName;
     @Value("${com.griddynamics.product.indexer.date.format}")
     private String dateFormat;

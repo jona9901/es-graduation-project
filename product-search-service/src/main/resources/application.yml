@@ -2,14 +2,13 @@ server:
   port: 8080
 
 com.griddynamics:
+  es:
+    esHost: http://localhost:9200
+    user: elastic
+    pass: Qo4dba5o1aH7qE7mfUoI
+    index: product_indexer
   product:
     indexer:
-      es:
-        esHost: http://localhost:9200
-        user: elastic
-        pass: Qo4dba5o1aH7qE7mfUoI
-        index: product_index
-
       files:
         mappings: classpath:elastic/mappings.json
         settings: classpath:elastic/settings.json
@@ -19,12 +18,6 @@ com.griddynamics:
         format: yyyyMMddhhmmss
 
     search:
-      es:
-        esHost: http://localhost:9200
-        user: elastic
-        pass: Qo4dba5o1aH7qE7mfUoI
-        index: typeaheads
-
       request:
         default:
           findByQuery:
