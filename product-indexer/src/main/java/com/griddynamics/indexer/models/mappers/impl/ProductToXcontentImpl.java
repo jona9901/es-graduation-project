@@ -20,14 +20,9 @@ public class ProductToXcontentImpl implements ProductToXcontent {
         try {
             XContentBuilder builder = XContentFactory.jsonBuilder()
                     .startObject()
-                    .startObject("brand")
-                    .field("title", product.getBrand())
-                    .field("shingles", product.getBrandShingles())
-                    .endObject()
-                    .startObject("name")
-                    .field("title", product.getName())
-                    .field("shingles", product.getNameShingles())
-                    .endObject()
+                    .field("id", product.getId())
+                    .field("brand", product.getBrand())
+                    .field("name", product.getName())
                     .field("price", product.getPrice())
                     .startArray("skus");
             for (Skus sku : product.getSkus()) {

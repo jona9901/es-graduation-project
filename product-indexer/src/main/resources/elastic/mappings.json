@@ -1,36 +1,26 @@
 {
   "properties": {
     "brand": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "text",
-          "analyzer": "text_default",
-          "index_options": "docs",
-          "norms": false
-        },
+      "type": "text",
+      "analyzer": "text_default",
+      "index_options": "docs",
+      "norms": true,
+      "fields": {
         "shingles": {
           "type": "text",
-          "analyzer": "text_default",
-          "index_options": "docs",
-          "norms": false
+          "analyzer": "shingle_analyzer"
         }
       }
     },
     "name": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "text",
-          "analyzer": "text_default",
-          "index_options": "docs",
-          "norms": false
-        },
+      "type": "text",
+      "analyzer": "text_default",
+      "index_options": "docs",
+      "norms": true,
+      "fields": {
         "shingles": {
           "type": "text",
-          "analyzer": "text_default",
-          "index_options": "docs",
-          "norms": false
+          "analyzer": "shingle_analyzer"
         }
       }
     },
