@@ -21,7 +21,7 @@ public class ProductIndexerServiceTest {
 
     @Test
     public void demoTest() {
-        productIndexerService.tt();
+        productIndexerService.recreateIndex();
     }
 
     @SpringBootApplication

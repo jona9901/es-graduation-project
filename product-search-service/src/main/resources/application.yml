@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+com.griddynamics:
+  product:
+    indexer:
+      es:
+        esHost: http://localhost:9200
+        user: elastic
+        pass: Qo4dba5o1aH7qE7mfUoI
+        index: product_index
+
+      files:
+        mappings: classpath:elastic/mappings.json
+        settings: classpath:elastic/settings.json
+        data:     classpath:elastic/task_8_data.json
+
+      date:
+        format: yyyyMMddhhmmss
+
+    search:
+      es:
+        esHost: http://localhost:9200
+        user: elastic
+        pass: Qo4dba5o1aH7qE7mfUoI
+        index: typeaheads
+
+      request:
+        default:
+          findByQuerySize: 10
+          getAllSize: 50
+        minQueryLength: 3
+        fuzziness:
+          startsFromLength:
+            one: 4
+            two: 6
+          boost:
+            zero: 1.0
+            one: 0.5
+            two: 0.25
+        prefixQueryBoost: 0.9

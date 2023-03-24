@@ -4,7 +4,6 @@ import com.griddynamics.indexer.repositories.ProductIndexerRepository;
 import com.griddynamics.indexer.services.ProductIndexerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -15,7 +14,7 @@ public class ProductIndexerServiceImpl implements ProductIndexerService {
 
 
     @Override
-    public void tt() {
+    public void recreateIndex() {
         repository.recreateIndex();
     }
 }

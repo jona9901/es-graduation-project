@@ -45,7 +45,7 @@ public class ExercisesIntegrationTest extends BaseTest {
     @Test
     public void testGetAllReturns36documents() {
         client
-//            .logResponse() // Use this method to log the response to debug tests
+            .logResponse() // Use this method to log the response to debug tests
             .typeaheadRequest()
             .body("{}")
             .post()
@@ -59,7 +59,7 @@ public class ExercisesIntegrationTest extends BaseTest {
     @Test
     public void testSearchByTextWorks() {
         client
-//            .logResponse() // Use this method to log the response to debug tests
+            .logResponse() // Use this method to log the response to debug tests
             .typeaheadRequest()
             .body("{\"size\": 3, \"textQuery\": \"sho\"}")
             .post()

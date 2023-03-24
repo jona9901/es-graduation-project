@@ -9,10 +9,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <!--<module>typeaheads</module>
+        <!--<module>typeaheads</module>-->
         <module>product-indexer</module>
-        <module>product-search-service</module>-->
-        <!--<module>application</module>-->
+        <module>product-search-service</module>
     </modules>
 
 </project>
