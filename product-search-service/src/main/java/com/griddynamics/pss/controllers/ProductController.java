@@ -1,25 +1,28 @@
 package com.griddynamics.pss.controllers;
 
-import com.griddynamics.indexer.services.ProductIndexerService;
-import lombok.NonNull;
+import com.griddynamics.pss.models.ProductRequest;
+import com.griddynamics.pss.models.ProductResponse;
+import com.griddynamics.pss.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/v1")
 @RequiredArgsConstructor
 public class ProductController {
-    private final ProductIndexerService productIndexerService;
+    private final ProductService productService;
 
-    @GetMapping("/product")
-    public void product(){
-        productIndexerService.recreateIndex();
+    @PostMapping("/product")
+    public @ResponseBody ResponseEntity<ProductResponse> product(@RequestBody ProductRequest request) {
+        return new ResponseEntity<>(productService.getServiceResponse(request), HttpStatus.OK);
+    }
+
+    @PostMapping("/recreate/index")
+    public void recreateIndex() {
+        productService.recreateIndex();
     }
 }

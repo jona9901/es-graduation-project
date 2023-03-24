@@ -1,36 +1,36 @@
 {
   "properties": {
     "brand": {
-      "type": "nested",
+      "type": "object",
       "properties": {
         "title": {
           "type": "text",
           "analyzer": "text_default",
           "index_options": "docs",
-          "norms": true
+          "norms": false
         },
         "shingles": {
           "type": "text",
           "analyzer": "text_default",
           "index_options": "docs",
-          "norms": true
+          "norms": false
         }
       }
     },
     "name": {
-      "type": "nested",
+      "type": "object",
       "properties": {
         "title": {
           "type": "text",
           "analyzer": "text_default",
           "index_options": "docs",
-          "norms": true
+          "norms": false
         },
         "shingles": {
           "type": "text",
           "analyzer": "text_default",
           "index_options": "docs",
-          "norms": true
+          "norms": false
         }
       }
     },
@@ -39,7 +39,7 @@
       "doc_values": true
     },
     "skus": {
-      "type": "nested",
+      "type": "object",
       "properties": {
         "color": {
           "type": "text",

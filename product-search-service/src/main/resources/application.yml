@@ -27,9 +27,11 @@ com.griddynamics:
 
       request:
         default:
-          findByQuerySize: 10
+          findByQuery:
+            size: 10
+            page: 0
           getAllSize: 50
-        minQueryLength: 3
+          minQueryLength: 3
         fuzziness:
           startsFromLength:
             one: 4
