@@ -38,4 +38,8 @@ com.griddynamics:
             zero: 1.0
             one: 0.5
             two: 0.25
+            sku:
+              size: 2
+              color: 3
+            shingles: 5
         prefixQueryBoost: 0.9

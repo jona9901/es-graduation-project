@@ -3,6 +3,7 @@ package com.griddynamics.pss.controllers;
 import com.griddynamics.pss.models.ProductRequest;
 import com.griddynamics.pss.models.ProductResponse;
 import com.griddynamics.pss.services.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/product")
-    public @ResponseBody ResponseEntity<ProductResponse> product(@RequestBody ProductRequest request) {
+    public @ResponseBody ResponseEntity<ProductResponse> product(@Valid @RequestBody ProductRequest request) {
         return new ResponseEntity<>(productService.getServiceResponse(request), HttpStatus.OK);
     }
 

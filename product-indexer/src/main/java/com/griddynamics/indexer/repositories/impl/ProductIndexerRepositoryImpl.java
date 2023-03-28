@@ -11,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest.AliasActions;
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -90,6 +88,7 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
                 new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
                         .index(indexNameDate)
                         .alias(indexName);
+
         request.addAliasAction(aliasAction);
 
         try {
@@ -165,6 +164,8 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
         try {
             BulkRequest bulkRequest = new BulkRequest();
             List<Product> products = objectMapper.readValue(productIndexerDataFile.getFile(), new TypeReference<List<Product>>() {});
+            Product p = objectMapper.readValue("{\"id\": \"1\"}", Product.class);
+
 
             List<XContentBuilder> builders =  products.stream()
                     .map(productToXcontent::productToXcontentBuilder)

@@ -3,24 +3,34 @@
     "brand": {
       "type": "text",
       "analyzer": "text_default",
+      "search_analyzer": "text_default",
       "index_options": "docs",
       "norms": true,
       "fields": {
         "shingles": {
           "type": "text",
-          "analyzer": "shingle_analyzer"
+          "analyzer": "shingle_analyzer",
+          "fielddata": true
+        },
+        "facets": {
+          "type": "keyword"
         }
       }
     },
     "name": {
       "type": "text",
       "analyzer": "text_default",
+      "search_analyzer": "text_default",
       "index_options": "docs",
       "norms": true,
       "fields": {
         "shingles": {
           "type": "text",
-          "analyzer": "shingle_analyzer"
+          "analyzer": "shingle_analyzer",
+          "fielddata": true
+        },
+        "facets": {
+          "type": "keyword"
         }
       }
     },
@@ -32,16 +42,12 @@
       "type": "object",
       "properties": {
         "color": {
-          "type": "text",
-          "analyzer": "standard",
-          "index_options": "docs",
-          "norms": false
+          "type": "keyword",
+          "index_options": "docs"
         },
         "size": {
-          "type": "text",
-          "analyzer": "standard",
-          "index_options": "docs",
-          "norms": false
+          "type": "keyword",
+          "index_options": "docs"
         }
       }
     }

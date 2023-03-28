@@ -24,6 +24,7 @@ public class IntegrationTest extends  BaseTest{
         Thread.sleep(1100); // TASK 6: Why if we change 1100 to 500, then some tests fail? How to fix it, so that all tests pass with 500?
     }
 
+    // Empty request test
     @Test
     public void emptyRequestTest() {
         client
@@ -31,8 +32,8 @@ public class IntegrationTest extends  BaseTest{
                 .body("{}")
                 .post()
                 .then()
-                .statusCode(200)
-                .body("totalHits", equalTo(0));
+                .statusCode(400);
+                //.body("totalHits", equalTo(0));
     }
 
     @Test
@@ -47,6 +48,18 @@ public class IntegrationTest extends  BaseTest{
     }
 
     @Test
+    public void notExistingDocTest() {
+        client
+                .productRequest()
+                .body("{\"queryText\": \"Calvin klein L red ankle skinny jeans\"}")
+                .post()
+                .then()
+                .statusCode(200)
+                .body("totalHits", equalTo(0));
+    }
+
+    // Happy path test
+    @Test
     public void happyPathTest() {
         client
                 .logResponse() // Use this method to log the response to debug tests
@@ -59,8 +72,28 @@ public class IntegrationTest extends  BaseTest{
                 .body("totalHits", is(1))
                 // Typeaheads
                 .body("products", hasSize(1))
-//                .body("products[0].id", is("2"))
-                .body("products[0].brand.title", is("Calvin Klein"))
-                .body("products[0].name.title", is("Women ankle skinny jeans, model 1282"));
+                .body("products[0].id", is(2))
+                .body("products[0].brand", is("Calvin Klein"))
+                .body("products[0].name", is("Women ankle skinny jeans, model 1282"))
+                .body("products[0].skus", hasSize(9));
+    }
+
+    // Pagination Test
+    @Test
+    public void paginationTest() {
+        client
+                .productRequest()
+                .body("{" +
+                        "\"queryText\": \"jeans\"}, \n" +
+                        "\"size\": 2," +
+                        "\"page\": 1" +
+                        "}")
+                .post()
+                .then()
+                .statusCode(200)
+                .body("totalHits", is(8))
+                .body("products", hasSize(2))
+                .body("products[0].id", is(6))
+                .body("products[1].id", is(5));
     }
 }

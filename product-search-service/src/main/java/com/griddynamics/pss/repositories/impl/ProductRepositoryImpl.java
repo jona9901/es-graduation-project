@@ -37,15 +37,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements ProductRepository {
     private static final String PRICE_AGG = "PriceRangeAgg";
-    private static final String NAME_FIELD = "name.title";
+    private static final String NAME_FIELD = "name";
     private static final String NAME_SHINGLES_FIELD = "name.shingles";
-    private static final String BRAND_FIELD = "brand.title";
+    private static final String BRAND_FIELD = "brand";
     private static final String BRAND_SHINGLES_FIELD = "brand.shingles";
     private static final String PRICE_FIELD = "price";
     private static final String SKUS_FIELD = "skus";
     private static final String SKUS_COLOR_FIELD = "skus.color";
     private static final String SKUS_SIZE_FIELD = "skus.size";
     private static final String ID_FIELD = "_id";
+    private static final List<String> SIZES = List.of("xxs", "xs", "s", "m", "l", "xl", "xxl", "xxxl");
+    private static final List<String> COLORS = List.of("green", "black", "white", "blue", "yellow", "red", "brown", "orange", "grey");
 
     private final RestHighLevelClient client;
     private final ProductIndexerService productIndexerService;
@@ -64,6 +66,13 @@ public class ProductRepositoryImpl implements ProductRepository {
     float fuzzyTwoBoost;
     @Value("${com.griddynamics.product.search.request.prefixQueryBoost}")
     float prefixQueryBoost;
+    @Value("${com.griddynamics.product.search.request.fuzziness.boost.sku.size}")
+    int skuSizeBoost;
+    @Value("${com.griddynamics.product.search.request.fuzziness.boost.sku.size}")
+    int skuColorBoost;
+
+    @Value("${com.griddynamics.product.search.request.fuzziness.boost.shingles}")
+    int shinglesBoost;
 
     @Override
     public ProductResponse getProductsByQuery(ProductRequest request) {
@@ -89,7 +98,6 @@ public class ProductRepositoryImpl implements ProductRepository {
         List<AggregationBuilder> aggs = createAggs();
         aggs.forEach(ssb::aggregation);
 
-
         // Search in ES
         SearchRequest searchRequest = new SearchRequest(indexName).source(ssb);
         try {
@@ -113,20 +121,20 @@ public class ProductRepositoryImpl implements ProductRepository {
                 .range(PRICE_AGG)
                 .field(PRICE_FIELD)
                 .keyed(true)
-                .addRange(new RangeAggregator.Range("Cheap", null, 99.99))
-                .addRange("Average", 100.0, 499.99)
+                .addRange(new RangeAggregator.Range("Cheap", null, 100.0))
+                .addRange("Average", 100.0, 500.0)
                 .addRange(new RangeAggregator.Range("Expensive", 500.0, null));
         // Facets: count aggregation by skus color
         /*ValueCountAggregationBuilder colorBuilder = AggregationBuilders
                 .count(SKUS_COLOR_FIELD);
         // Facets: count aggregation by skus color
         ValueCountAggregationBuilder sizeBuilder = AggregationBuilders
-                .count(SKUS_SIZE_FIELD);
+                .count(SKUS_SIZE_FIELD);*/
 
-        result.add(brandBuilder);*/
+        //result.add(brandBuilder);
         result.add(priceRangeBuilder);
-        /*result.add(colorBuilder);
-        result.add(sizeBuilder);*/
+        //result.add(colorBuilder);
+        //result.add(sizeBuilder);
 
         return result;
     }
@@ -173,17 +181,35 @@ public class ProductRepositoryImpl implements ProductRepository {
             List<QueryBuilder> wordQueries = new ArrayList<>();
             // Queries for all possible Levenshtein distances
             for (int distance = 0; distance <= maxLevenshteinDistance; distance++) {
+                String size = SIZES.stream()
+                        .filter(word.toLowerCase()::equals)
+                        .findFirst()
+                        .orElse(null);
+
+                String color = COLORS.stream()
+                        .filter(word.toLowerCase()::equals)
+                        .findFirst()
+                        .orElse(null);
+
                 float boost = getBoostByDistance(distance);
                 if (distance == 0) {
+                    if (size != null) {
+                        wordQueries.add(QueryBuilders.matchQuery(SKUS_SIZE_FIELD, word).boost(skuSizeBoost));
+                    }
+                    if (color != null) {
+                        wordQueries.add(QueryBuilders.matchQuery(SKUS_COLOR_FIELD, word).boost(skuColorBoost));
+                    }
                     wordQueries.add(QueryBuilders.matchQuery(NAME_FIELD, word).boost(boost));
                     wordQueries.add(QueryBuilders.matchQuery(BRAND_FIELD, word).boost(boost));
-                    wordQueries.add(QueryBuilders.matchQuery(SKUS_COLOR_FIELD, word).boost(boost));
-                    wordQueries.add(QueryBuilders.matchQuery(SKUS_SIZE_FIELD, word).boost(boost));
                 } else {
+                    if (size != null) {
+                        wordQueries.add(QueryBuilders.matchQuery(SKUS_SIZE_FIELD, word).boost(skuSizeBoost).fuzziness(String.valueOf(distance)));
+                    }
+                    if (color != null) {
+                        wordQueries.add(QueryBuilders.matchQuery(SKUS_COLOR_FIELD, word).boost(skuColorBoost).fuzziness(String.valueOf(distance)));
+                    }
                     wordQueries.add(QueryBuilders.matchQuery(NAME_FIELD, word).boost(boost).fuzziness(String.valueOf(distance)));
                     wordQueries.add(QueryBuilders.matchQuery(BRAND_FIELD, word).boost(boost).fuzziness(String.valueOf(distance)));
-                    wordQueries.add(QueryBuilders.matchQuery(SKUS_COLOR_FIELD, word).boost(boost).fuzziness(String.valueOf(distance)));
-                    wordQueries.add(QueryBuilders.matchQuery(SKUS_SIZE_FIELD, word).boost(boost).fuzziness(String.valueOf(distance)));
                 }
             }
 
@@ -202,6 +228,14 @@ public class ProductRepositoryImpl implements ProductRepository {
                 mainQueryList.add(dmqb);
             }
         }
+
+        // Shingles
+        /*
+        if (words.size() >= 2) {
+            mainQueryList.add(QueryBuilders.matchPhraseQuery(BRAND_SHINGLES_FIELD, textQuery).boost(shinglesBoost));
+            mainQueryList.add(QueryBuilders.matchPhraseQuery(NAME_SHINGLES_FIELD, textQuery).boost(shinglesBoost));
+        }
+        */
 
         // Create result query from mainQueryList
         BoolQueryBuilder result = QueryBuilders.boolQuery();
@@ -226,3 +260,9 @@ public class ProductRepositoryImpl implements ProductRepository {
         productIndexerService.recreateIndex();
     }
 }
+
+
+/*
+* @GetMapping("/sku/{sku})
+* @PathVariable String sku
+* */
