@@ -38,6 +38,9 @@ public class ProductServiceImpl implements ProductService {
         if (request.getSize() == null || request.getSize() <= 0) {
             request.setSize(defaultFindByQuerySize);
         }
+        if (request.getPage() == null || request.getPage() <= 0) {
+            request.setPage(findByQueryPage);
+        }
     }
 
     @Override

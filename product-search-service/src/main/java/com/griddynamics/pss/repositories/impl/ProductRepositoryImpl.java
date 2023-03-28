@@ -70,7 +70,6 @@ public class ProductRepositoryImpl implements ProductRepository {
     int skuSizeBoost;
     @Value("${com.griddynamics.product.search.request.fuzziness.boost.sku.size}")
     int skuColorBoost;
-
     @Value("${com.griddynamics.product.search.request.fuzziness.boost.shingles}")
     int shinglesBoost;
 
@@ -88,6 +87,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         // Create search request
         SearchSourceBuilder ssb = new SearchSourceBuilder()
                 .query(mainQuery)
+                .from(request.getPage())
                 .size(request.getSize());
 
         // Add sorting and aggregation
