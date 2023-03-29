@@ -16,7 +16,7 @@ public class ProductServiceImpl implements ProductService {
     @Value("${com.griddynamics.product.search.request.default.findByQuery.size}")
     private int defaultFindByQuerySize;
     @Value("${com.griddynamics.product.search.request.default.findByQuery.page}")
-    private int findByQueryPage;
+    private int defaultFindByQueryPage;
     @Value("${com.griddynamics.product.search.request.default.getAllSize}")
     private int defaultGetAllSize;
     @Value("${com.griddynamics.product.search.request.default.minQueryLength}")
@@ -39,7 +39,7 @@ public class ProductServiceImpl implements ProductService {
             request.setSize(defaultFindByQuerySize);
         }
         if (request.getPage() == null || request.getPage() <= 0) {
-            request.setPage(findByQueryPage);
+            request.setPage(defaultFindByQueryPage);
         }
     }
 

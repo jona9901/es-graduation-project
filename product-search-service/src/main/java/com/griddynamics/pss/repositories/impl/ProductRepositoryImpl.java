@@ -1,6 +1,7 @@
 package com.griddynamics.pss.repositories.impl;
 
 import com.griddynamics.indexer.services.ProductIndexerService;
+import com.griddynamics.pss.models.Aggregation;
 import com.griddynamics.pss.models.ProductRequest;
 import com.griddynamics.pss.models.ProductResponse;
 import com.griddynamics.pss.repositories.ProductRepository;
@@ -17,9 +18,12 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.range.ParsedRange;
 import org.elasticsearch.search.aggregations.bucket.range.RangeAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.range.RangeAggregator;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -37,10 +41,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements ProductRepository {
     private static final String PRICE_AGG = "PriceRangeAgg";
+    private static final String BRAND_AGG = "brandAgg";
+    private static final String COLOR_AGG = "colorAgg";
+    private static final String SIZE_AGG = "sizeAgg";
     private static final String NAME_FIELD = "name";
     private static final String NAME_SHINGLES_FIELD = "name.shingles";
     private static final String BRAND_FIELD = "brand";
     private static final String BRAND_SHINGLES_FIELD = "brand.shingles";
+    private static final String BRAND_FACETS_FIELD = "brand.facets";
     private static final String PRICE_FIELD = "price";
     private static final String SKUS_FIELD = "skus";
     private static final String SKUS_COLOR_FIELD = "skus.color";
@@ -114,8 +122,12 @@ public class ProductRepositoryImpl implements ProductRepository {
         List<AggregationBuilder> result = new ArrayList<>();
 
         // Facets: count aggregation by brand count
-        /*ValueCountAggregationBuilder brandBuilder = AggregationBuilders
-                .count(BRAND_FIELD);*/
+        TermsAggregationBuilder brandBuilder = AggregationBuilders
+                .terms(BRAND_AGG)
+                .field(BRAND_FACETS_FIELD)
+                .order(BucketOrder.count(false))
+                .order(BucketOrder.key(true));
+
         // Facets: range aggregation by price
         RangeAggregationBuilder priceRangeBuilder = AggregationBuilders
                 .range(PRICE_AGG)
@@ -124,17 +136,25 @@ public class ProductRepositoryImpl implements ProductRepository {
                 .addRange(new RangeAggregator.Range("Cheap", null, 100.0))
                 .addRange("Average", 100.0, 500.0)
                 .addRange(new RangeAggregator.Range("Expensive", 500.0, null));
-        // Facets: count aggregation by skus color
-        /*ValueCountAggregationBuilder colorBuilder = AggregationBuilders
-                .count(SKUS_COLOR_FIELD);
-        // Facets: count aggregation by skus color
-        ValueCountAggregationBuilder sizeBuilder = AggregationBuilders
-                .count(SKUS_SIZE_FIELD);*/
 
-        //result.add(brandBuilder);
+        // Facets: count aggregation by skus color
+        TermsAggregationBuilder colorBuilder = AggregationBuilders
+                .terms(COLOR_AGG)
+                .field(SKUS_COLOR_FIELD)
+                .order(BucketOrder.count(false))
+                .order(BucketOrder.key(true));
+
+        // Facets: count aggregation by skus color
+        TermsAggregationBuilder sizeBuilder = AggregationBuilders
+                .terms(SIZE_AGG)
+                .field(SKUS_SIZE_FIELD)
+                .order(BucketOrder.count(false))
+                .order(BucketOrder.key(true));
+
+        result.add(brandBuilder);
         result.add(priceRangeBuilder);
-        //result.add(colorBuilder);
-        //result.add(sizeBuilder);
+        result.add(colorBuilder);
+        result.add(sizeBuilder);
 
         return result;
     }
@@ -151,22 +171,65 @@ public class ProductRepositoryImpl implements ProductRepository {
                 .collect(Collectors.toList());
         response.setProducts(products);
 
-        // Facets ():
-        Map<String, Map<String, Number>> pricesAgg = new LinkedHashMap<>();
 
+        // Facets
+        List<Aggregation> pricesAgg = new ArrayList<Aggregation>();
+        List<Aggregation> brandAgg = new ArrayList<Aggregation>();
+        List<Aggregation> colorAgg = new ArrayList<Aggregation>();
+        List<Aggregation> sizesAgg = new ArrayList<Aggregation>();
+
+        // Price range facet
         ParsedRange parsedRange = searchResponse.getAggregations().get(PRICE_AGG);
         parsedRange.getBuckets().stream()
                 .sorted(Comparator.comparingDouble(bucket -> (Double) bucket.getFrom()))
                 .forEach(bucket -> {
                     String key = bucket.getKeyAsString();
                     Long docCount = bucket.getDocCount();
-                    Map<String, Number> bucketValues = new LinkedHashMap<>();
-                    bucketValues.put("count", docCount);
 
-                    pricesAgg.put(key, bucketValues);
+                    Aggregation bucketValues = new Aggregation(key, docCount);
+
+                    pricesAgg.add(bucketValues);
                 });
 
-        response.getFacets().put("Prices", pricesAgg);
+        // Brand facet
+        ParsedTerms brandPrsedTerms = searchResponse.getAggregations().get(BRAND_AGG);
+        brandPrsedTerms.getBuckets().stream()
+                .forEach(bucket -> {
+                    String key = bucket.getKeyAsString();
+                    Long docCount = bucket.getDocCount();
+
+                    Aggregation bucketValues = new Aggregation(key, docCount);
+
+                    brandAgg.add(bucketValues);
+                });
+
+        // Color facet
+        ParsedTerms colorParsedTerms = searchResponse.getAggregations().get(COLOR_AGG);
+        colorParsedTerms.getBuckets().stream()
+                .forEach(bucket -> {
+                    String key = bucket.getKeyAsString();
+                    Long docCount = bucket.getDocCount();
+
+                    Aggregation bucketValues = new Aggregation(key, docCount);
+
+                    colorAgg.add(bucketValues);
+                });
+
+        // Size facet
+        ParsedTerms sizeParsedTerms = searchResponse.getAggregations().get(SIZE_AGG);
+        sizeParsedTerms.getBuckets().stream()
+                .forEach(bucket -> {
+                    String key = bucket.getKeyAsString();
+                    Long docCount = bucket.getDocCount();
+
+                    Aggregation bucketValues = new Aggregation(key, docCount);
+                    sizesAgg.add(bucketValues);
+                });
+
+        response.getFacets().put("prices", pricesAgg);
+        response.getFacets().put("brand", brandAgg);
+        response.getFacets().put("color", colorAgg);
+        response.getFacets().put("size", sizesAgg);
 
         return response;
     }
@@ -194,10 +257,10 @@ public class ProductRepositoryImpl implements ProductRepository {
                 float boost = getBoostByDistance(distance);
                 if (distance == 0) {
                     if (size != null) {
-                        wordQueries.add(QueryBuilders.matchQuery(SKUS_SIZE_FIELD, word).boost(skuSizeBoost));
+                        wordQueries.add(QueryBuilders.matchQuery(SKUS_SIZE_FIELD, word).boost(boost * skuSizeBoost)); // TODO: fix sku boost
                     }
                     if (color != null) {
-                        wordQueries.add(QueryBuilders.matchQuery(SKUS_COLOR_FIELD, word).boost(skuColorBoost));
+                        wordQueries.add(QueryBuilders.matchQuery(SKUS_COLOR_FIELD, word).boost(boost * skuColorBoost));
                     }
                     wordQueries.add(QueryBuilders.matchQuery(NAME_FIELD, word).boost(boost));
                     wordQueries.add(QueryBuilders.matchQuery(BRAND_FIELD, word).boost(boost));
@@ -229,6 +292,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             }
         }
 
+        // TODO: fix shingles boost
         // Shingles
         /*
         if (words.size() >= 2) {
