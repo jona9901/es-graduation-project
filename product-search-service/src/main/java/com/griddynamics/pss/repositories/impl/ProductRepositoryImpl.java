@@ -125,8 +125,8 @@ public class ProductRepositoryImpl implements ProductRepository {
         TermsAggregationBuilder brandBuilder = AggregationBuilders
                 .terms(BRAND_AGG)
                 .field(BRAND_FACETS_FIELD)
-                .order(BucketOrder.count(false))
-                .order(BucketOrder.key(true));
+                .order(BucketOrder.key(true))
+                .order(BucketOrder.count(false));
 
         // Facets: range aggregation by price
         RangeAggregationBuilder priceRangeBuilder = AggregationBuilders
@@ -141,15 +141,15 @@ public class ProductRepositoryImpl implements ProductRepository {
         TermsAggregationBuilder colorBuilder = AggregationBuilders
                 .terms(COLOR_AGG)
                 .field(SKUS_COLOR_FIELD)
-                .order(BucketOrder.count(false))
-                .order(BucketOrder.key(true));
+                .order(BucketOrder.key(true))
+                .order(BucketOrder.count(false));
 
-        // Facets: count aggregation by skus color
+        // Facets: count aggregation by skus size
         TermsAggregationBuilder sizeBuilder = AggregationBuilders
                 .terms(SIZE_AGG)
                 .field(SKUS_SIZE_FIELD)
-                .order(BucketOrder.count(false))
-                .order(BucketOrder.key(true));
+                .order(BucketOrder.key(true))
+                .order(BucketOrder.count(false));
 
         result.add(brandBuilder);
         result.add(priceRangeBuilder);
@@ -226,7 +226,7 @@ public class ProductRepositoryImpl implements ProductRepository {
                     sizesAgg.add(bucketValues);
                 });
 
-        response.getFacets().put("prices", pricesAgg);
+        response.getFacets().put("price", pricesAgg);
         response.getFacets().put("brand", brandAgg);
         response.getFacets().put("color", colorAgg);
         response.getFacets().put("size", sizesAgg);
