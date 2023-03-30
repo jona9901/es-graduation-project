@@ -237,6 +237,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     private QueryBuilder getQueryByText(String textQuery) {
         List<String> words = Arrays.asList(textQuery.split(" "));
         List<QueryBuilder> mainQueryList = new ArrayList<>();
+        List<QueryBuilder> shingleQueryList = new ArrayList<>();
         for (int i = 0; i < words.size(); i++) {
             String word = words.get(i);
 
@@ -266,10 +267,10 @@ public class ProductRepositoryImpl implements ProductRepository {
                     wordQueries.add(QueryBuilders.matchQuery(BRAND_FIELD, word).boost(boost));
                 } else {
                     if (size != null) {
-                        wordQueries.add(QueryBuilders.matchQuery(SKUS_SIZE_FIELD, word).boost(skuSizeBoost).fuzziness(String.valueOf(distance)));
+                        wordQueries.add(QueryBuilders.matchQuery(SKUS_SIZE_FIELD, word).boost(boost * skuSizeBoost).fuzziness(String.valueOf(distance)));
                     }
                     if (color != null) {
-                        wordQueries.add(QueryBuilders.matchQuery(SKUS_COLOR_FIELD, word).boost(skuColorBoost).fuzziness(String.valueOf(distance)));
+                        wordQueries.add(QueryBuilders.matchQuery(SKUS_COLOR_FIELD, word).boost(boost * skuColorBoost).fuzziness(String.valueOf(distance)));
                     }
                     wordQueries.add(QueryBuilders.matchQuery(NAME_FIELD, word).boost(boost).fuzziness(String.valueOf(distance)));
                     wordQueries.add(QueryBuilders.matchQuery(BRAND_FIELD, word).boost(boost).fuzziness(String.valueOf(distance)));
@@ -292,18 +293,18 @@ public class ProductRepositoryImpl implements ProductRepository {
             }
         }
 
-        // TODO: fix shingles boost
-        // Shingles
-        /*
-        if (words.size() >= 2) {
-            mainQueryList.add(QueryBuilders.matchPhraseQuery(BRAND_SHINGLES_FIELD, textQuery).boost(shinglesBoost));
-            mainQueryList.add(QueryBuilders.matchPhraseQuery(NAME_SHINGLES_FIELD, textQuery).boost(shinglesBoost));
-        }
-        */
-
         // Create result query from mainQueryList
         BoolQueryBuilder result = QueryBuilders.boolQuery();
         mainQueryList.forEach(result::must);
+
+        // TODO: fix shingles boost
+        // Shingles
+        /*if (words.size() >= 2) {
+            shingleQueryList.add(QueryBuilders.matchPhraseQuery(BRAND_SHINGLES_FIELD, textQuery).boost(shinglesBoost));
+            shingleQueryList.add(QueryBuilders.matchPhraseQuery(NAME_SHINGLES_FIELD, textQuery).boost(shinglesBoost));
+        }
+        shingleQueryList.forEach(result::should);*/
+
         return result;
     }
 

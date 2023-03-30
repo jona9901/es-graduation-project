@@ -27,6 +27,7 @@
         "shingles": {
           "type": "text",
           "analyzer": "shingle_analyzer",
+          "index_options": "docs",
           "fielddata": true
         },
         "facets": {

@@ -195,7 +195,42 @@ public class IntegrationTest extends  BaseTest{
                 .statusCode(200)
                 .body("totalHits", is(8))
                 .body("products", hasSize(2));
-                /*.body("products[0].id", is(6))
-                .body("products[1].id", is(5));*/
+    }
+
+    @Test
+    public void boostJeansTest() {
+        client
+                .productRequest()
+                .body("{" +
+                        "\"queryText\": \"jeans\"\n" +
+                        "}")
+                .post()
+                .then()
+                .statusCode(200)
+                .body("totalHits", is(8))
+                .body("products[0].id", is(8))
+                .body("products[1].id", is(7))
+                .body("products[2].id", is(6))
+                .body("products[3].id", is(5))
+                .body("products[4].id", is(4))
+                .body("products[5].id", is(3))
+                .body("products[6].id", is(2))
+                .body("products[7].id", is(1));
+    }
+
+    @Test
+    public void boostWomenAnkleBlueJeans() {
+        client
+                .productRequest()
+                .body("{" +
+                        "\"queryText\": \"women ankle blue jeans\"\n" +
+                        "}")
+                .post()
+                .then()
+                .statusCode(200)
+                .body("totalHits", is(3))
+                .body("products[0].id", is(6))
+                .body("products[1].id", is(2))
+                .body("products[2].id", is(1));
     }
 }
