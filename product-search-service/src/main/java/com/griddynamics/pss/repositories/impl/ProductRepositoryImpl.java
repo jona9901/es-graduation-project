@@ -95,7 +95,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         // Create search request
         SearchSourceBuilder ssb = new SearchSourceBuilder()
                 .query(mainQuery)
-                .from(request.getPage())
+                .from(request.getPage() * request.getSize())
                 .size(request.getSize());
 
         // Add sorting and aggregation
@@ -258,11 +258,15 @@ public class ProductRepositoryImpl implements ProductRepository {
                 float boost = getBoostByDistance(distance);
                 if (distance == 0) {
                     if (size != null) {
-                        wordQueries.add(QueryBuilders.matchQuery(SKUS_SIZE_FIELD, word).boost(boost * skuSizeBoost)); // TODO: fix sku boost
+                        wordQueries.add(QueryBuilders.matchQuery(SKUS_SIZE_FIELD, word).boost(boost * skuSizeBoost));
                     }
                     if (color != null) {
                         wordQueries.add(QueryBuilders.matchQuery(SKUS_COLOR_FIELD, word).boost(boost * skuColorBoost));
                     }
+                    // Shingles
+                    shingleQueryList.add(QueryBuilders.matchQuery(BRAND_SHINGLES_FIELD, textQuery).boost(shinglesBoost));
+                    shingleQueryList.add(QueryBuilders.matchQuery(NAME_SHINGLES_FIELD, textQuery).boost(shinglesBoost));
+
                     wordQueries.add(QueryBuilders.matchQuery(NAME_FIELD, word).boost(boost));
                     wordQueries.add(QueryBuilders.matchQuery(BRAND_FIELD, word).boost(boost));
                 } else {
@@ -272,6 +276,10 @@ public class ProductRepositoryImpl implements ProductRepository {
                     if (color != null) {
                         wordQueries.add(QueryBuilders.matchQuery(SKUS_COLOR_FIELD, word).boost(boost * skuColorBoost).fuzziness(String.valueOf(distance)));
                     }
+
+                    shingleQueryList.add(QueryBuilders.matchQuery(BRAND_SHINGLES_FIELD, textQuery).boost(boost * shinglesBoost).fuzziness(String.valueOf(distance)));
+                    shingleQueryList.add(QueryBuilders.matchQuery(NAME_SHINGLES_FIELD, textQuery).boost(boost * shinglesBoost).fuzziness(String.valueOf(distance)));
+
                     wordQueries.add(QueryBuilders.matchQuery(NAME_FIELD, word).boost(boost).fuzziness(String.valueOf(distance)));
                     wordQueries.add(QueryBuilders.matchQuery(BRAND_FIELD, word).boost(boost).fuzziness(String.valueOf(distance)));
                 }
@@ -298,12 +306,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         mainQueryList.forEach(result::must);
 
         // TODO: fix shingles boost
-        // Shingles
-        /*if (words.size() >= 2) {
-            shingleQueryList.add(QueryBuilders.matchPhraseQuery(BRAND_SHINGLES_FIELD, textQuery).boost(shinglesBoost));
-            shingleQueryList.add(QueryBuilders.matchPhraseQuery(NAME_SHINGLES_FIELD, textQuery).boost(shinglesBoost));
-        }
-        shingleQueryList.forEach(result::should);*/
+        shingleQueryList.forEach(result::should);
 
         return result;
     }
