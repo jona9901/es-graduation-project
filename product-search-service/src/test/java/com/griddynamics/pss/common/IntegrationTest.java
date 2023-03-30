@@ -1,6 +1,6 @@
 package com.griddynamics.pss.common;
-
 import com.griddynamics.pss.services.ProductService;
+
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
