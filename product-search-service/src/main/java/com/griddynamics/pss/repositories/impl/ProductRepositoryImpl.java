@@ -1,6 +1,5 @@
 package com.griddynamics.pss.repositories.impl;
 
-import com.griddynamics.indexer.services.ProductIndexerService;
 import com.griddynamics.pss.models.Aggregation;
 import com.griddynamics.pss.models.ProductRequest;
 import com.griddynamics.pss.models.ProductResponse;
@@ -60,7 +59,6 @@ public class ProductRepositoryImpl implements ProductRepository {
     private static final String SIZE_FACET_NAME = "size";
     private static final List<String> PRICE_RANGES = List.of("Cheap", "Average", "Expensive");
     private final RestHighLevelClient client;
-    private final ProductIndexerService productIndexerService;
 
     @Value("${com.griddynamics.es.index}")
     private String indexName;
@@ -322,11 +320,6 @@ public class ProductRepositoryImpl implements ProductRepository {
         return distance == 0
                 ? fuzzyZeroBoost
                 : (distance == 1 ? fuzzyOneBoost : fuzzyTwoBoost);
-    }
-
-    @Override
-    public void recreateIndex() {
-        productIndexerService.recreateIndex();
     }
 }
 

@@ -42,9 +42,4 @@ public class ProductServiceImpl implements ProductService {
             request.setPage(defaultFindByQueryPage);
         }
     }
-
-    @Override
-    public void recreateIndex() {
-        productRepository.recreateIndex();
-    }
 }

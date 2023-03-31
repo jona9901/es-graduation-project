@@ -21,9 +21,4 @@ public class ProductController {
     public @ResponseBody ResponseEntity<ProductResponse> product(@Valid @RequestBody ProductRequest request) {
         return new ResponseEntity<>(productService.getServiceResponse(request), HttpStatus.OK);
     }
-
-    @PostMapping("/recreate/index")
-    public void recreateIndex() {
-        productService.recreateIndex();
-    }
 }

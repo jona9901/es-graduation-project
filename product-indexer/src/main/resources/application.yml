@@ -1,0 +1,23 @@
+server:
+  port: 8081
+
+local:
+  server:
+    port: 8081
+
+com.griddynamics:
+  es:
+    esHost: http://localhost:9200
+    user: elastic
+    pass: Qo4dba5o1aH7qE7mfUoI
+    index: product_indexer
+
+  product:
+    indexer:
+      files:
+        mappings: classpath:elastic/mappings.json
+        settings: classpath:elastic/settings.json
+        data: classpath:elastic/task_8_data.json
+
+      date:
+        format: yyyyMMddhhmmss

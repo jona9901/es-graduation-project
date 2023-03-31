@@ -8,10 +8,10 @@
     <version>0.1.0</version>
     <packaging>pom</packaging>
 
-    <modules>
-        <!--<module>typeaheads</module>-->
+    <!--<modules>
+        &lt;!&ndash;<module>typeaheads</module>&ndash;&gt;
         <module>product-indexer</module>
         <module>product-search-service</module>
-    </modules>
+    </modules>-->
 
 </project>

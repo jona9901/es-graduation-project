@@ -1,5 +1,4 @@
 package com.griddynamics.pss.common;
-import com.griddynamics.pss.services.ProductService;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,14 +18,22 @@ public class IntegrationTest extends  BaseTest{
     private static final String CHEAP = "Cheap";
     private static final String AVERAGE = "Average";
     private static final String EXPENSIVE = "Expensive";
-    private final APIClient client = new APIClient();
-    private final ProductService productService;
+    private final APIClient client = new APIClient(false);
+    private final APIClient indexer = new APIClient(true);
 
+    @Test
     @BeforeAll
-    public void init() throws InterruptedException {
-        productService.recreateIndex();
-        Thread.sleep(3000); // TASK 6: Why if we change 1100 to 500, then some tests fail? How to fix it, so that all tests pass with 500?
+    public void recreateIndexTest() throws InterruptedException {
+        //productService.recreateIndex();
+        indexer
+                .productRequest()
+                .get()
+                .then()
+                .statusCode(200);
+
+        Thread.sleep(2000); // TASK 6: Why if we change 1100 to 500, then some tests fail? How to fix it, so that all tests pass with 500?
     }
+
 
     // Empty request test
     @Test

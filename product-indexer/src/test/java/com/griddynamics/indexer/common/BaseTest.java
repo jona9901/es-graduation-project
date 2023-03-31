@@ -1,4 +1,4 @@
-package com.griddynamics.pss.common;
+package com.griddynamics.indexer.common;
 
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.specification.RequestSpecification;
@@ -23,14 +23,6 @@ public abstract class BaseTest {
     protected class APIClient {
 
         private boolean logResponse = false;
-        private boolean isIndexerTest = false;
-        private String productEndpoint = "/v1/product";
-        private String indexerEndpoint = "/v1/recreate";
-        private int indexerPort = 8081;
-
-        public APIClient(boolean isIndexerTest) {
-            this.isIndexerTest = isIndexerTest;
-        }
 
         /**
          * Use this method to log the response to debug tests
@@ -41,28 +33,15 @@ public abstract class BaseTest {
         }
 
         public RequestSpecification productRequest() {
-            if(!isIndexerTest) {
-                return baseRequest()
-                        .basePath(productEndpoint)
-                        .header("Content-Type", "application/json");
-            } else {
-                return baseRequest()
-                        .basePath(indexerEndpoint)
-                        .header("Content-Type", "application/json");
-            }
+            return baseRequest()
+                    .basePath("/v1/product")
+                    .header("Content-Type", "application/json");
         }
 
         public RequestSpecification baseRequest() {
-            RequestSpecification requestSpecification;
-            if(!isIndexerTest) {
-                requestSpecification = given()
-                        .baseUri("http://localhost").port(getSpringBootPort())
-                        .log().all();
-            } else {
-                requestSpecification = given()
-                        .baseUri("http://localhost").port(indexerPort)
-                        .log().all();
-            }
+            RequestSpecification requestSpecification = given()
+                    .baseUri("http://localhost").port(getSpringBootPort())
+                    .log().all();
 
             if (logResponse) {
                 requestSpecification = requestSpecification.filter(new ResponseLoggingFilter());
@@ -72,4 +51,3 @@ public abstract class BaseTest {
         }
     }
 }
-

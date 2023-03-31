@@ -5,5 +5,5 @@ import com.griddynamics.pss.models.ProductResponse;
 
 public interface ProductRepository {
     ProductResponse getProductsByQuery(ProductRequest request);
-    void recreateIndex();
+    // void recreateIndex();
 }
