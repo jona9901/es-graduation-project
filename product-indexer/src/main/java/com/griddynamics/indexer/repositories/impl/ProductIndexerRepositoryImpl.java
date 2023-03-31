@@ -34,8 +34,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.griddynamics.indexer.exceptions.advisers.ConsumerHandler.consumerHandlerBuilder;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -71,6 +69,7 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
         String mappings = getStrFromResource(productIndexerMappingsFile);
         createIndex(indexNameDate, settings, mappings);
 
+        // TODO: make elasticsearch return indexes with update date
         GetIndexRequest indexRequest = new GetIndexRequest(String.format("%s_*", indexName));
 
         // Alias
@@ -102,6 +101,7 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
         } catch (IOException ioException) {
             log.error(ioException.getMessage());
         }
+        // TODO:
         processBulkInsertData();
     }
 
@@ -164,8 +164,6 @@ public class ProductIndexerRepositoryImpl implements ProductIndexerRepository {
         try {
             BulkRequest bulkRequest = new BulkRequest();
             List<Product> products = objectMapper.readValue(productIndexerDataFile.getFile(), new TypeReference<List<Product>>() {});
-            Product p = objectMapper.readValue("{\"id\": \"1\"}", Product.class);
-
 
             List<XContentBuilder> builders =  products.stream()
                     .map(productToXcontent::productToXcontentBuilder)

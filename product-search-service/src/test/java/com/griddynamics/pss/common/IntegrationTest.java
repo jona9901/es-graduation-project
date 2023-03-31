@@ -25,7 +25,7 @@ public class IntegrationTest extends  BaseTest{
     @BeforeAll
     public void init() throws InterruptedException {
         productService.recreateIndex();
-        Thread.sleep(1100); // TASK 6: Why if we change 1100 to 500, then some tests fail? How to fix it, so that all tests pass with 500?
+        Thread.sleep(3000); // TASK 6: Why if we change 1100 to 500, then some tests fail? How to fix it, so that all tests pass with 500?
     }
 
     // Empty request test
@@ -203,6 +203,7 @@ public class IntegrationTest extends  BaseTest{
     @Test
     public void boostJeansTest() {
         client
+                .logResponse()
                 .productRequest()
                 .body("{" +
                         "\"queryText\": \"jeans\"\n" +
@@ -258,6 +259,7 @@ public class IntegrationTest extends  BaseTest{
     @Test
     public void boostWomenBlueJeansTest() {
         client
+                .logResponse()
                 .productRequest()
                 .body("{" +
                         "\"queryText\": \"WOMEN blue jeans\"\n" +
